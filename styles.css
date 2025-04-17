@@ -31,6 +31,7 @@
     margin: 5px 0;
   }
   
+  
   /* Contenedor general */
   .party-container {
     display: grid;
@@ -105,3 +106,55 @@
     vertical-align: middle;
     margin-right: 5px;
   }
+  .COMMON {
+    color: #FFFFFF;
+  }
+
+  .UNCOMMON {
+    color: #1EFF00;
+  }
+
+  .RARE {
+    color: #0070DD;
+  }
+  
+  .EPIC {
+    color: #A335EE;
+  }
+
+  .LEGENDARY {
+    color: #FF8000;
+  }
+
+  .Guerrero {
+    color: #C79C6E;
+  }
+
+  .Brujo {
+    color: #7878ED;
+  }
+
+  .Chamán {
+    color: #0070DE;
+  }
+
+  .Pícaro {
+    color: #FFF569;
+  }
+
+  .Sacerdote {
+    color: 	#FFFFFF;
+  }
+
+  .Mago {
+    color: 	#40C7EB;
+  }
+
+  .Cazador {
+    color: #A9D271;
+  }
+
+  .Druida {
+    color: #FF7D0A;
+  }
+

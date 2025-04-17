@@ -18,7 +18,35 @@ async function getAccessToken() {
 }
 
 async function getCharacterData(realm, characterName, token) {
-  const url = `https://us.api.blizzard.com/profile/wow/character/${realm}/${characterName.toLowerCase()}?namespace=profile-classic1x-us&locale=en_US`;
+  const url = `https://us.api.blizzard.com/profile/wow/character/${realm}/${characterName.toLowerCase()}?namespace=profile-classic1x-us&locale=es_MX`;
+
+  const myHeaders = new Headers();
+  myHeaders.append("Authorization", "Bearer " + token);
+
+  const requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow"
+  };
+
+  console.log("URL de la solicitud:", url);
+
+  try {
+    const response = await fetch(url, requestOptions);
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener datos: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`No se pudo obtener información para ${characterName}:`, error);
+    return null;
+  }
+}
+
+async function getExtraData(realm, characterName, token, path) {
+  const url = `https://us.api.blizzard.com/profile/wow/character/${realm}/${characterName.toLowerCase()}${path}?namespace=profile-classic1x-us&locale=es_MX`;
 
   const myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + token);
@@ -46,8 +74,27 @@ async function getCharacterData(realm, characterName, token) {
 }
 
 async function updateProfile(profileId, realm, characterName, token) {
-  const data = await getCharacterData(realm, characterName, token);
   const profileDiv = document.getElementById(profileId);
+  const data = await getCharacterData(realm, characterName, token);
+
+  const imageProfile = await getExtraData(realm, characterName, token, '/character-media');
+  const equipment = await getExtraData(realm, characterName, token, '/equipment');
+  data.imageProfile = imageProfile.assets[0].value;
+
+  var equipmentToFront="";
+  equipment.equipped_items.forEach((item, index) => {
+    
+  const itemToShow = {
+    "name" : item.name,
+    "quality" : item.quality?.type,
+    "slot" : item.slot?.name
+  };
+    console.log(`Ítem ${index + 1}:`);
+    //equipmentToFront +='Slot: ${slot} - ${name} Calidad: ${quality}';
+    equipmentToFront += `<p><span>${itemToShow.slot}: </span><span class="${itemToShow.quality}">${itemToShow.name}</span></p>\n`;
+
+  });
+  data.equipment = equipmentToFront;
 
   if (!data) {
     profileDiv.innerHTML = `<p>No se pudo obtener información de ${characterName}.</p>`;
@@ -55,11 +102,13 @@ async function updateProfile(profileId, realm, characterName, token) {
   }
 
   profileDiv.innerHTML = `
-    <p><strong></strong><br><img src="${data.character_media?.avatar_url || 'default-avatar.png'}" alt="Retrato de ${data.name}"></p>
+    <p><strong></strong><br><img src="${data.imageProfile || 'default-avatar.png'}" alt="Retrato de ${data.name}"></p>
     <p><strong>Nombre:</strong> ${data.name}</p>
     <p><strong>Nivel:</strong> ${data.level}</p>
-    <p><strong>Clase:</strong> ${data.character_class.name}</p>
+    <p><strong> Clase:</strong> <span class=${data.character_class.name} > ${data.character_class.name}</span></p>
     <p><strong>Raza:</strong> ${data.race.name}</p>
+    <p><strong>Equipamiento:</strong></p> ${data.equipment}
+    
   
 
   `;
